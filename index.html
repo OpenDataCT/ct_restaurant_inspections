@@ -80,23 +80,8 @@
 		feature_group.addLayer(exp_InspectionsOnlineJSON);
 
 		feature_group.addTo(map);
-		var title = new L.Control();
-		title.onAdd = function (map) {
-			this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-			this.update();
-			return this._div;
-		};
-		title.update = function () {
-			this._div.innerHTML = '<h2>Online Restaurant Inspections in Connecticut</h2>Displays the availabilty of online restaurant inspections by Town'
-		};
-		title.addTo(map);
-		
-	var baseMaps = {
-		'OSM Black & White': basemap_0
-	};
-		L.control.layers(baseMaps,{"InspectionsOnline": exp_InspectionsOnlineJSON},{collapsed:false}).addTo(map);
-		function updateOpacity(value) {
-	}
+
+	
 		L.control.scale({options: {position: 'bottomleft',maxWidth: 100,metric: true,imperial: false,updateWhenIdle: false}}).addTo(map);
 	</script>
 </body>
