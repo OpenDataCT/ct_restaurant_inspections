@@ -86,7 +86,13 @@
 			this._div.innerHTML = '<h2>Online Restaurant Inspections in Connecticut</h2>Displays the availabilty of online restaurant inspections by Town'
 		};
 		title.addTo(map);
-		
+		var legend = L.control({position: 'bottomright'});
+		legend.onAdd = function (map) {
+			var div = L.DomUtil.create('div', 'info legend');
+			div.innerHTML = "<h3>Legend</h3><table></table>";>
+    		return div;
+		};
+		legend.addTo(map);
 	var baseMaps = {
 		'OSM Black & White': basemap_0
 	};
