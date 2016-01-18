@@ -3,35 +3,47 @@
 	<head>
 		<title>CT Restaurant Inspections</title>
 		<meta charset="utf-8" />
-		<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 		<link rel="stylesheet" type="text/css" href="css/own_style.css">
-		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-		<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+		<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
 		<script src="js/leaflet-hash.js"></script>
 		<script src="js/Autolinker.min.js"></script>
 	</head>
 	<body>
-		<img height="200" src=http://portal.ct.gov/uploadedImages/Departments_and_Agencies/Office_of_the_Governor/Non_Search_able_content/opendatact.jpg </img>
+		<img height="200" src="http://portal.ct.gov/uploadedImages/Departments_and_Agencies/Office_of_the_Governor/Non_Search_able_content/opendatact.jpg" />
 		<h1 style="font-family: Arial; font-size: 16px">Online Restaurant Inspections in Connecticut</h1>
 		<Body><p style="font-family: Arial; font-size: 12px">Restaurant inspections can be really hard to find online;
 		this map will hopefully make that easier for you.
 		Blue towns have inspections online in some form, orange towns not yet, and the rest don't provide them</p>
 		<h2 style="font-family: Arial; font-size: 14px"> Click on a blue Town and the pop-up will give you a link to the online inspection</h2>
 		<div id="map"></div>
-		<script src="data/exp_InspectionsOnline.js"></script>
 		<script>
-		var map = L.map('map', {
-			zoomControl:true, maxZoom:19
-		}).fitBounds([[40.9950512147,-73.7215350437],[42.1093391558,-71.5280855764]]);
-		var hash = new L.Hash(map);
-		var additional_attrib = 'created w. <a href="https://github.com/geolicious/qgis2leaf" target ="_blank">qgis2leaf</a> by <a href="http://www.geolicious.de" target ="_blank">Geolicious</a> & contributors<br>';
-		var feature_group = new L.featureGroup([]);
-		var raster_group = new L.LayerGroup([]);
-		var basemap_0 = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png', { 
-			attribution: additional_attrib + '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors,<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-		});	
-		basemap_0.addTo(map);	
-		var layerOrder=new Array();
+		$(document).ready(function(){
+			$.getJSON("data/exp_InspectionsOnline.geojson", function(exp_InspectionsOnline){
+				var map = L.map('map', {
+					zoomControl:true, maxZoom:19
+				}).fitBounds([[40.9950512147,-73.7215350437],[42.1093391558,-71.5280855764]]);
+				var hash = new L.Hash(map);
+				var additional_attrib = 'created w. <a href="https://github.com/geolicious/qgis2leaf" target ="_blank">qgis2leaf</a> by <a href="http://www.geolicious.de" target ="_blank">Geolicious</a> & contributors<br>';
+				var feature_group = new L.featureGroup([]);
+				var raster_group = new L.LayerGroup([]);
+				var basemap_0 = L.tileLayer( '//stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png' /* 'https://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png' */, { 
+					attribution: additional_attrib + '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors,<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+				});	
+				basemap_0.addTo(map);	
+				var layerOrder=new Array();
+
+				var exp_InspectionsOnlineJSON = new L.geoJson(exp_InspectionsOnline,{
+					onEachFeature: pop_InspectionsOnline,
+					style: doStyleInspectionsOnline
+				});
+				//add comment sign to hide this layer on the map in the initial view.
+				feature_group.addLayer(exp_InspectionsOnlineJSON);
+				feature_group.addTo(map);
+				L.control.scale({options: {position: 'bottomleft',maxWidth: 100,metric: true,imperial: false,updateWhenIdle: false}}).addTo(map);
+			})
+		})
 		function pop_InspectionsOnline(feature, layer) {					
 			var popupContent = '<table><tr><th scope="row">OBJECTID</th><td>' + Autolinker.link(String(feature.properties['OBJECTID'])) + '</td></tr><tr><th scope="row">Town Code</th><td>' + Autolinker.link(String(feature.properties['TOWN_NO'])) + '</td></tr><tr><th scope="row">TOWN</th><td>' + Autolinker.link(String(feature.properties['TOWN'])) + '</td></tr><tr><th scope="row">Heath Dept</th><td>' + Autolinker.link(String(feature.properties['Health_Dis'])) + '</td></tr><tr><th scope="row">Inspection Online</th><td>' + Autolinker.link(String(feature.properties['Inspection'])) + '</td></tr><tr><th scope="row">URL</th><td>' + Autolinker.link(String(feature.properties['URL'])) + '</td></tr><tr><th scope="row">Type</th><td>' + Autolinker.link(String(feature.properties['Type'])) + '</td></tr><tr><th scope="row">NOTES</th><td>' + Autolinker.link(String(feature.properties['NOTES'])) + '</td></tr></table>';
 			layer.bindPopup(popupContent);
@@ -74,18 +86,7 @@
 					break;
 			}
 		}
-		var exp_InspectionsOnlineJSON = new L.geoJson(exp_InspectionsOnline,{
-			onEachFeature: pop_InspectionsOnline,
-			style: doStyleInspectionsOnline
-		});
-		//add comment sign to hide this layer on the map in the initial view.
-		feature_group.addLayer(exp_InspectionsOnlineJSON);
-
-		feature_group.addTo(map);
-
-	
-		L.control.scale({options: {position: 'bottomleft',maxWidth: 100,metric: true,imperial: false,updateWhenIdle: false}}).addTo(map);
-	</script>
+		</script>
 	
         <p style="font-family: Arial; font-size: 12px"><a href="https://github.com/OpenDataCT/ct_restaurant_inspections/tree/gh-pages"> Get the source code and data here <a/>	
 </body>
